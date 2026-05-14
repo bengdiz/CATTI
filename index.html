@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -108,6 +110,7 @@
       font-size: 13px;
       color: #7a5570;
       line-height: 2.3;
+      text-align: center;
     }
 
     /* ── BUTTON ── */
@@ -407,7 +410,132 @@
       .card         { padding: 16px 12px; }
     }
   </style>
-</head>
+
+  <style>
+    /* ══ SHARE CARD (off-screen render target) ══ */
+    #share-card {
+      position: fixed;
+      left: -9999px;
+      top: 0;
+      width: 375px;
+      background: #FEF0F5;
+      background-image: radial-gradient(circle, #f0b8d060 1.5px, transparent 1.5px);
+      background-size: 22px 22px;
+      padding: 32px 24px 28px;
+      font-family: 'DotGothic16', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      color: #3B2A3A;
+      box-sizing: border-box;
+    }
+    #share-card .sc-inner {
+      background: #FFFAF5;
+      border: 3px solid #3B2A3A;
+      box-shadow: 5px 5px 0 #3B2A3A;
+      border-radius: 2px;
+      padding: 24px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #share-card .sc-eyebrow {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: #9e8c9e;
+      letter-spacing: 2px;
+    }
+    #share-card .sc-type {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 20px;
+      color: #FF7BAC;
+      text-shadow: 2px 2px 0 #FFD6E7;
+      letter-spacing: 4px;
+    }
+    #share-card .sc-breed {
+      font-size: 17px;
+      font-weight: bold;
+      color: #3B2A3A;
+    }
+    #share-card .sc-img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+    #share-card .sc-summary {
+      font-size: 13px;
+      color: #9e8c9e;
+      text-align: center;
+      line-height: 1.8;
+    }
+    #share-card .sc-divider {
+      width: 100%;
+      border: none;
+      border-top: 2px dashed #FFD6E7;
+      margin: 4px 0;
+    }
+    #share-card .sc-footer {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+    #share-card .sc-qr {
+      flex-shrink: 0;
+    }
+    #share-card .sc-qr canvas,
+    #share-card .sc-qr img {
+      width: 72px !important;
+      height: 72px !important;
+      border: 2px solid #3B2A3A;
+    }
+    #share-card .sc-tip {
+      font-size: 12px;
+      color: #9e8c9e;
+      line-height: 1.9;
+    }
+    #share-card .sc-tip strong {
+      display: block;
+      color: #3B2A3A;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    /* ══ SHARE MODAL ══ */
+    #share-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      padding: 24px;
+    }
+    #share-modal.active { display: flex; }
+    #share-modal img {
+      max-width: 100%;
+      max-height: 70vh;
+      border: 3px solid #3B2A3A;
+      box-shadow: 6px 6px 0 #3B2A3A;
+    }
+    #share-modal .sm-hint {
+      color: #fff;
+      font-size: 13px;
+      font-family: 'DotGothic16', sans-serif;
+      text-align: center;
+    }
+    #share-modal .sm-close {
+      background: #FFFAF5;
+      border: 2px solid #3B2A3A;
+      padding: 8px 24px;
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 #3B2A3A;
+    }
+  </style>
 <body>
 <div class="container">
 
@@ -419,9 +547,7 @@
       <div style="font-family:'DotGothic16',sans-serif;font-size:13px;color:var(--muted);text-align:center;margin-top:6px;margin-bottom:2px;">你是哪种猫？</div>
       <img src="img-hero.png" alt="CATTI 喵格测试" class="hero-cat" />
       <div class="start-sub">喵喵喵</div>
-      <div class="info-box">
-        <img src="img-icon-time.png" alt="" style="width:28px;height:28px;image-rendering:pixelated;vertical-align:middle;margin-right:8px;">共 12 道题，大约需要 2–3 分钟完成
-      </div>
+      <div class="info-box">共 12 道题，大约需要 2–3 分钟完成</div>
       <button class="btn btn-primary" onclick="startTest()">▶ &nbsp;开始测试</button>
     </div>
   </div>
@@ -473,13 +599,39 @@
       <hr class="divider" />
       <div class="result-desc" id="r-desc"></div>
       <div class="result-actions">
-        <button class="btn btn-primary" onclick="shareResult()"><img src="img-icon-share.png" alt="" style="width:18px;height:18px;image-rendering:pixelated;vertical-align:middle;margin-right:6px;">分享</button>
-        <button class="btn btn-outline" onclick="restartTest()"><img src="img-icon-retry.png" alt="" style="width:18px;height:18px;image-rendering:pixelated;vertical-align:middle;margin-right:6px;">重新测试</button>
+        <button class="btn btn-primary" onclick="shareResult()">分享</button>
+        <button class="btn btn-outline" onclick="restartTest()">重新测试</button>
       </div>
     </div>
   </div>
 
 </div><!-- /container -->
+
+<!-- ══ SHARE CARD (render target, hidden off-screen) ══ -->
+<div id="share-card">
+  <div class="sc-inner">
+    <div class="sc-eyebrow">CATTI 喵格测试</div>
+    <div class="sc-type" id="sc-type"></div>
+    <div class="sc-breed" id="sc-breed"></div>
+    <img class="sc-img" id="sc-img" src="" alt="" crossorigin="anonymous" />
+    <div class="sc-summary" id="sc-summary"></div>
+    <hr class="sc-divider" />
+    <div class="sc-footer">
+      <div class="sc-qr" id="sc-qr"></div>
+      <div class="sc-tip">
+        <strong>扫一扫，也来测测！</strong>
+        你是哪种猫和小尼呀？<br/>扫描二维码了解一下吧 🐾
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHARE MODAL (preview) ══ -->
+<div id="share-modal">
+  <img id="share-preview" src="" alt="分享图" />
+  <div class="sm-hint">👆 长按图片保存到相册，分享给朋友吧！</div>
+  <button class="sm-close" onclick="closeShareModal()">关闭</button>
+</div>
 
 <script>
 // ══════════════════════════════════════════
@@ -601,10 +753,10 @@ const QUESTIONS = [
   {
     text: "完美的一天是什么样的？",
     opts: [
-      "有固定节奏：早晨看鸟、午间小睡、下午玩耍。",
-      "有几件必做的事，但顺序随意。",
-      "跟着感觉走，遇到什么就做什么。",
-      "醒来再决定，完全随机才刺激。"
+      "晒太阳、洗脸、巡逻、蹭饭——每件事都有时间表，打乱了今天就废了。",
+      "大事先定好，比如今天睡哪里、找主人还是找玩具，其他的到时候再说。",
+      "阳光好就去窗台，困了就找被子，跟着当下的感觉走。",
+      "昨天的爱好今天就过时了，随时推翻、随时重来才叫好玩。"
     ],
     dim: "JP", scores: [2, 1, -1, -2]
   },
@@ -777,11 +929,17 @@ function renderQuestion() {
 
   const container = document.getElementById('options');
   container.innerHTML = '';
+  // 将选项与分值打包后随机打乱
+  const paired = q.opts.map((text, i) => ({ text, score: q.scores[i] }));
+  for (let i = paired.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [paired[i], paired[j]] = [paired[j], paired[i]];
+  }
   ['A','B','C','D'].forEach((lbl, i) => {
     const btn = document.createElement('button');
     btn.className = 'opt-btn';
-    btn.innerHTML = `<span class="opt-label">${lbl}</span>${q.opts[i]}`;
-    btn.onclick = () => pick(i, btn);
+    btn.innerHTML = `<span class="opt-label">${lbl}</span>${paired[i].text}`;
+    btn.onclick = () => pick(paired[i].score, btn);
     container.appendChild(btn);
   });
 
@@ -798,7 +956,7 @@ function renderQuestion() {
 
 let pendingScore = null;
 
-function pick(idx, btn) {
+function pick(scoreVal, btn) {
   // prevent double-click
   document.querySelectorAll('.opt-btn').forEach(b => {
     b.onclick = null;
@@ -808,12 +966,12 @@ function pick(idx, btn) {
 
   // store score, wait for next button
   const q = QUESTIONS[current];
-  pendingScore = { dim: q.dim, val: q.scores[idx] };
+  pendingScore = { dim: q.dim, val: scoreVal };
 
   const wrap = document.getElementById('btn-next-wrap');
   const nextBtn = document.getElementById('btn-next');
   const isLast = current === QUESTIONS.length - 1;
-  nextBtn.textContent = isLast ? '查看结果 🐱' : '继续 ▶';
+  nextBtn.textContent = isLast ? '查看结果' : '继续 ▶';
   wrap.style.display = 'block';
 }
 
@@ -881,7 +1039,7 @@ function showResult() {
   r.tags.forEach(t => {
     const s = document.createElement('span');
     s.className = 'tag';
-    s.textContent = t;
+    s.textContent = t.replace(/^[\p{Emoji}\p{Emoji_Presentation}\uFE0F\u20E3\u200D]+\s*/u, '');
     tagsEl.appendChild(s);
   });
 
@@ -892,16 +1050,51 @@ function shareResult() {
   const type    = document.getElementById('r-type').textContent;
   const breed   = document.getElementById('r-breed').textContent;
   const summary = document.getElementById('r-summary').textContent;
-  const text    = `我做了 CATTI 喵格测试！\n结果是 ${type} · ${breed}\n「${summary}」\n你也来测测 👇`;
+  const imgSrc  = document.getElementById('r-emoji').src;
 
-  if (navigator.share) {
-    navigator.share({ title:'CATTI 喵格测试', text, url: location.href });
+  // 填充分享卡片
+  document.getElementById('sc-type').textContent    = type;
+  document.getElementById('sc-breed').textContent   = breed;
+  document.getElementById('sc-summary').textContent = summary;
+  const scImg = document.getElementById('sc-img');
+  scImg.src = imgSrc;
+
+  // 生成二维码
+  const qrEl = document.getElementById('sc-qr');
+  qrEl.innerHTML = '';
+  new QRCode(qrEl, {
+    text: location.href,
+    width: 72,
+    height: 72,
+    colorDark: '#3B2A3A',
+    colorLight: '#FFFAF5',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  // 等图片和 QR 渲染完再截图
+  const doCapture = () => {
+    html2canvas(document.getElementById('share-card'), {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false
+    }).then(canvas => {
+      const dataUrl = canvas.toDataURL('image/png');
+      document.getElementById('share-preview').src = dataUrl;
+      document.getElementById('share-modal').classList.add('active');
+    });
+  };
+
+  // 确保猫和图加载完
+  if (scImg.complete) {
+    setTimeout(doCapture, 120);
   } else {
-    navigator.clipboard
-      .writeText(text + '\n' + location.href)
-      .then(() => alert('已复制到剪贴板，去分享给朋友吧 🐱'))
-      .catch(() => alert(text));
+    scImg.onload = () => setTimeout(doCapture, 120);
   }
+}
+
+function closeShareModal() {
+  document.getElementById('share-modal').classList.remove('active');
 }
 
 function restartTest() {
