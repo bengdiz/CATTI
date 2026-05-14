@@ -1092,7 +1092,8 @@ function shareResult() {
     r.tags.forEach(t => {
       const s = document.createElement('span');
       s.className = 'sc-tag';
-      s.textContent = t;
+      // 去掉头部 emoji
+      s.textContent = t.replace(/^[\p{Emoji}\p{Emoji_Presentation}\uFE0F\u20E3\u200D]+\s*/u, '');
       scTagsEl.appendChild(s);
     });
   }
