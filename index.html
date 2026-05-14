@@ -499,6 +499,29 @@
       font-size: 13px;
       margin-bottom: 2px;
     }
+    #share-card .sc-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      width: 100%;
+    }
+    #share-card .sc-tag {
+      background: #FFD6E7;
+      border: 2px solid #3B2A3A;
+      border-radius: 2px;
+      font-size: 11px;
+      padding: 3px 8px;
+      color: #3B2A3A;
+      white-space: nowrap;
+    }
+    #share-card .sc-desc {
+      font-size: 11.5px;
+      color: #5a4a5a;
+      line-height: 1.9;
+      text-align: justify;
+      width: 100%;
+    }
 
     /* ══ SHARE MODAL ══ */
     #share-modal {
@@ -614,6 +637,9 @@
     <div class="sc-breed" id="sc-breed"></div>
     <img class="sc-img" id="sc-img" src="" alt="" crossorigin="anonymous" />
     <div class="sc-summary" id="sc-summary"></div>
+    <div class="sc-tags" id="sc-tags"></div>
+    <hr class="sc-divider" />
+    <div class="sc-desc" id="sc-desc"></div>
     <hr class="sc-divider" />
     <div class="sc-footer">
       <div class="sc-qr" id="sc-qr"></div>
@@ -1033,6 +1059,9 @@ function showResult() {
   document.getElementById('r-quote').textContent   = `「${r.quote}」`;
   document.getElementById('r-desc').textContent    = r.desc;
 
+  // 存储当前结果供分享卡片使用
+  window._currentResult = r;
+
   const tagsEl = document.getElementById('r-tags');
   tagsEl.innerHTML = '';
   r.tags.forEach(t => {
@@ -1054,6 +1083,22 @@ function shareResult() {
   // 填充分享卡片
   document.getElementById('sc-breed').textContent   = breed;
   document.getElementById('sc-summary').textContent = summary;
+
+  // 填充 tags
+  const r = window._currentResult;
+  const scTagsEl = document.getElementById('sc-tags');
+  scTagsEl.innerHTML = '';
+  if (r && r.tags) {
+    r.tags.forEach(t => {
+      const s = document.createElement('span');
+      s.className = 'sc-tag';
+      s.textContent = t;
+      scTagsEl.appendChild(s);
+    });
+  }
+
+  // 填充详细描述
+  document.getElementById('sc-desc').textContent = (r && r.desc) ? r.desc : '';
   const scImg = document.getElementById('sc-img');
   scImg.src = imgSrc;
 
