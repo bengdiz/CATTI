@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CATTI | 喵格测试</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DotGothic16&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:      #FEF0F5;
+      --card:    #FFFAF5;
+      --primary: #FF7BAC;
+      --pink-lt: #FFD6E7;
+      --yellow:  #FFE566;
+      --mint:    #A8ECD6;
+      --lavender:#D5C8F8;
+      --peach:   #FFD4B8;
+      --dark:    #3B2A3A;
+      --border-c:#3B2A3A;
+      --muted:   #9e8c9e;
+      --border:  3px solid #3B2A3A;
+      --shadow:  5px 5px 0px #3B2A3A;
+    }
+
+    body {
+      font-family: 'DotGothic16', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px 16px 48px;
+      /* pastel dot grid */
+      background-image:
+        radial-gradient(circle, #f0b8d060 1.5px, transparent 1.5px);
+      background-size: 22px 22px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: var(--border);
+      box-shadow: var(--shadow);
+      padding: 28px 22px;
+      border-radius: 2px;
+    }
+
+    /* ── PIXEL FONT HELPER ── */
+    .px { font-family: 'Press Start 2P', monospace; }
+
+    /* ════════════════════════════
+       START SCREEN
+    ════════════════════════════ */
+    .start-eyebrow {
+      font-family: 'DotGothic16', 'PingFang SC', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 3px;
+      margin-bottom: 12px;
+    }
+    .start-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      color: var(--primary);
+      text-align: center;
+      line-height: 1.9;
+      text-shadow: 3px 3px 0 var(--pink-lt);
+    }
+    .hero-cat {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      display: block;
+      margin: 20px auto 16px;
+      animation: float 2.4s ease-in-out infinite;
+      image-rendering: pixelated;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-12px); }
+    }
+    .start-sub {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 2.2;
+      margin-bottom: 20px;
+    }
+    .info-box {
+      background: #fff0f7;
+      border: 2px solid var(--primary);
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #7a5570;
+      line-height: 2.3;
+    }
+
+    /* ── BUTTON ── */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 15px 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      text-align: center;
+      cursor: pointer;
+      border: var(--border);
+      box-shadow: var(--shadow);
+      transition: transform .08s, box-shadow .08s;
+      text-decoration: none;
+      letter-spacing: 1px;
+      border-radius: 2px;
+    }
+    .btn:hover  { transform: translate(2px,2px); box-shadow: 3px 3px 0 var(--dark); }
+    .btn:active { transform: translate(5px,5px); box-shadow: 0 0 0 var(--dark); }
+    .btn-primary   { background: var(--primary); color: #fff; }
+    .btn-yellow    { background: var(--yellow);  color: var(--dark); }
+    .btn-outline   { background: #fff; color: var(--dark); }
+
+    /* ════════════════════════════
+       QUESTION SCREEN
+    ════════════════════════════ */
+    .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .q-counter {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--primary);
+      background: var(--pink-lt);
+      padding: 4px 8px;
+      border: 2px solid var(--primary);
+    }
+    .q-paw {
+      font-size: 11px;
+      overflow: hidden;
+      white-space: nowrap;
+      max-width: 180px;
+      display: inline-block;
+      vertical-align: middle;
+      opacity: .4;
+    }
+    /* pixel progress bar */
+    .progress-wrap {
+      border: 2px solid var(--dark);
+      height: 16px;
+      background: var(--pink-lt);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #ffaad0);
+      transition: width .45s cubic-bezier(.4,0,.2,1);
+      position: relative;
+    }
+    /* pixel stripe overlay */
+    .progress-fill::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0, transparent 8px,
+        rgba(255,255,255,.3) 8px, rgba(255,255,255,.3) 10px
+      );
+    }
+    .q-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--dark);
+      line-height: 2;
+      margin-bottom: 22px;
+      background: #fff0f7;
+      border-left: 4px solid var(--primary);
+      padding: 10px 14px;
+    }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .opt-btn {
+      display: block;
+      width: 100%;
+      padding: 13px 14px;
+      background: #fffaf5;
+      border: 2px solid var(--border-c);
+      box-shadow: 3px 3px 0 var(--border-c);
+      font-size: 13.5px;
+      font-family: 'DotGothic16', 'PingFang SC', sans-serif;
+      color: var(--dark);
+      line-height: 1.8;
+      cursor: pointer;
+      text-align: left;
+      transition: transform .08s, box-shadow .08s, background .12s;
+      border-radius: 2px;
+    }
+    .opt-btn:hover  {
+      background: var(--pink-lt);
+      transform: translate(1px,1px);
+      box-shadow: 2px 2px 0 var(--border-c);
+    }
+    .opt-btn:active {
+      transform: translate(3px,3px);
+      box-shadow: 0 0 0 var(--border-c);
+    }
+    .opt-btn.selected {
+      background: var(--primary);
+      color: #fff;
+      transform: translate(3px,3px);
+      box-shadow: 0 0 0 var(--border-c);
+    }
+    .opt-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      margin-right: 10px;
+      background: var(--yellow);
+      color: var(--dark);
+      padding: 2px 5px;
+      border: 1px solid var(--dark);
+    }
+    .opt-btn.selected .opt-label {
+      background: rgba(255,255,255,.3);
+      border-color: rgba(255,255,255,.5);
+    }
+
+    /* ════════════════════════════
+       LOADING SCREEN
+    ════════════════════════════ */
+    .loading-inner {
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .loading-cat {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 24px;
+      image-rendering: pixelated;
+      animation: wobble 0.5s steps(2) infinite;
+    }
+    @keyframes wobble {
+      0%   { transform: rotate(-8deg); }
+      100% { transform: rotate(8deg); }
+    }
+    .loading-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--primary);
+      line-height: 2.6;
+    }
+    .loading-bar-wrap {
+      border: 2px solid var(--dark);
+      height: 16px;
+      background: var(--pink-lt);
+      margin-top: 20px;
+      overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--yellow));
+      animation: load 1.8s ease-in forwards;
+    }
+    @keyframes load {
+      0%   { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    /* ════════════════════════════
+       RESULT SCREEN
+    ════════════════════════════ */
+    .result-top {
+      background: linear-gradient(135deg, #fff0f7, #fff8e8);
+      border: 2px solid var(--border-c);
+      padding: 18px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+      box-shadow: 4px 4px 0 var(--border-c);
+    }
+    .result-badge {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .result-type {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 24px;
+      color: var(--primary);
+      text-shadow: 3px 3px 0 var(--pink-lt);
+      letter-spacing: 5px;
+    }
+    .result-breed {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 20px;
+      color: var(--dark);
+      margin-top: 8px;
+      letter-spacing: 2px;
+    }
+    .result-emoji {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+      display: block;
+      margin: 14px auto 10px;
+      image-rendering: pixelated;
+    }
+    .result-emoji-text {
+      font-size: 80px;
+      display: block;
+      text-align: center;
+      margin: 14px 0 10px;
+    }
+    .result-summary {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 0;
+      letter-spacing: 1px;
+    }
+    .result-quote {
+      border: 2px solid var(--primary);
+      border-left: 5px solid var(--primary);
+      background: #fff0f7;
+      padding: 12px 14px;
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 13px;
+      color: #8a5570;
+      line-height: 2.1;
+      margin-bottom: 18px;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tag {
+      background: var(--yellow);
+      border: 2px solid var(--dark);
+      box-shadow: 2px 2px 0 var(--dark);
+      padding: 6px 10px;
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 12px;
+      color: var(--dark);
+    }
+    .divider {
+      height: 2px;
+      background: var(--pink-lt);
+      margin: 18px 0;
+      border: none;
+    }
+    .result-desc {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 13px;
+      color: #5a4055;
+      line-height: 2.2;
+      background: #fffaf5;
+      border: 2px solid #f0dde8;
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+    .result-actions { display: flex; flex-direction: column; gap: 10px; }
+
+    .btn-next-area {
+      margin-top: 16px;
+    }
+    .btn-next-area .btn {
+      font-size: 11px;
+    }
+    .fade-in { animation: fadein .35s ease; }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 400px) {
+      .start-title  { font-size: 15px; }
+      .result-type  { font-size: 18px; letter-spacing: 3px; }
+      .result-breed { font-size: 17px; }
+      .hero-cat     { font-size: 72px; }
+      .result-emoji { font-size: 64px; }
+      .card         { padding: 20px 14px; }
+      .opt-btn      { font-size: 12.5px; padding: 12px 12px; }
+      .q-text       { font-size: 14px; }
+      .btn          { font-size: 9px; }
+    }
+    @media (max-width: 360px) {
+      .start-title  { font-size: 13px; }
+      .result-type  { font-size: 16px; letter-spacing: 2px; }
+      .card         { padding: 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══════════ START ═══════════ -->
+  <div class="screen active" id="screen-start">
+    <div class="card fade-in">
+      <div class="start-eyebrow">✦ CATTI — 喵格测试 ✦</div>
+      <div class="start-title">CATTI</div>
+      <div style="font-family:'DotGothic16',sans-serif;font-size:13px;color:var(--muted);text-align:center;margin-top:6px;margin-bottom:2px;">你是哪种猫？</div>
+      <img src="img-hero.png" alt="CATTI 喵格测试" class="hero-cat" />
+      <div class="start-sub">
+        12道题，测出你的喵星人格原型<br>
+        对应 16 种猫咪品种结果
+      </div>
+      <div class="info-box">
+        🐾 &nbsp;共 12 道题，每题 4 个选项<br>
+        🎯 &nbsp;结果对应 16 种猫咪品种<br>
+        ⏱ &nbsp;大约需要 2–3 分钟完成
+      </div>
+      <button class="btn btn-primary" onclick="startTest()">▶ &nbsp;开始测试</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ QUESTION ═══════════ -->
+  <div class="screen" id="screen-question">
+    <div class="card fade-in" id="q-card">
+      <div class="q-header">
+        <span class="q-counter">Q <span id="q-num">01</span> / 12</span>
+        <span class="q-paw" id="q-paw">🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾🐾</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div id="btn-next-wrap" style="display:none; margin-top:16px;">
+        <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">继续 ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ LOADING ═══════════ -->
+  <div class="screen" id="screen-loading">
+    <div class="card">
+      <div class="loading-inner">
+        <img src="img-loading.png" alt="" class="loading-cat" />
+        <div class="loading-title">正在分析<br>你的喵星人格…</div>
+        <div class="loading-bar-wrap">
+          <div class="loading-bar-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ RESULT ═══════════ -->
+  <div class="screen" id="screen-result">
+    <div class="card fade-in">
+      <div class="result-top">
+        <div class="result-badge">
+          <div class="result-type" id="r-type"></div>
+          <div class="result-breed" id="r-breed"></div>
+        </div>
+        <img class="result-emoji" id="r-emoji" src="" alt="" />
+        <div class="result-summary" id="r-summary"></div>
+      </div>
+      <div class="result-quote" id="r-quote"></div>
+      <div class="tags" id="r-tags"></div>
+      <hr class="divider" />
+      <div class="result-desc" id="r-desc"></div>
+      <div class="result-actions">
+        <button class="btn btn-primary" onclick="shareResult()">🔗 &nbsp;分享给朋友</button>
+        <button class="btn btn-outline" onclick="restartTest()">↺ &nbsp;重新测试</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+
+const QUESTIONS = [
+  // ─── E / I ───
+  {
+    text: "主人突然带来了三个陌生人，你的第一反应是？",
+    opts: [
+      "立刻冲过去挨个闻，争取被所有人摸一遍。",
+      "在远处观察一会儿，觉得没威胁再慢慢靠近。",
+      "躲到门后缝里偷偷看，但不出来。",
+      "完全无视，继续睡觉，关我什么事。"
+    ],
+    dim: "EI", scores: [2, 1, -1, -2]
+  },
+  // ─── S / N ───
+  {
+    text: "有陌生的箱子放在房间中央，你会怎么做？",
+    opts: [
+      "跳上去，马上占领！",
+      "嗅一嗅，用鼻子仔细判断里面有什么。",
+      "绕着转几圈，想搞清楚它到底有什么用。",
+      "坐得远远的，静观其变，总感觉有什么不对。"
+    ],
+    dim: "SN", scores: [2, 1, -1, -2]
+  },
+  // ─── S / N ───
+  {
+    text: "窗外飞过一只鸟，你盯着它看，脑子里在想？",
+    opts: [
+      "仔细观察它的飞行路线，计算最佳扑击时机。",
+      "好吃吗？值不值得花力气去抓。",
+      "只是发呆，思绪飘到了别的地方。",
+      "突然想到——如果猫能飞，会去哪里呢……"
+    ],
+    dim: "SN", scores: [2, 1, -1, -2]
+  },
+  // ─── E / I ───
+  {
+    text: "主人吃饭时，你会怎么做？",
+    opts: [
+      "跑到主人膝盖上，眼巴巴看着。",
+      "绕在饭桌边，叫声提醒主人别忘了你。",
+      "坐在椅子底下偷瞄，等待掉落的食物。",
+      "继续睡大觉，吃饭是主人的事。"
+    ],
+    dim: "EI", scores: [2, 1, -1, -2]
+  },
+  // ─── T / F ───  (positive = F)
+  {
+    text: "主人今天回来情绪很低落，你会？",
+    opts: [
+      "凑过去蹭蹭，寸步不离地陪着ta。",
+      "默默靠近，但不打扰，随时待命。",
+      "注意到了，但继续做自己的事。",
+      "若无其事跳上去踩完，继续走人。"
+    ],
+    dim: "TF", scores: [2, 1, -1, -2]
+  },
+  // ─── T / F ───
+  {
+    text: "你被主人不小心踩到了爪子，你会？",
+    opts: [
+      "立刻大声抗议，让主人知道有多委屈。",
+      "等主人来道歉，得到安抚才平静。",
+      "瞪主人一眼，过一会儿自己就忘了。",
+      "叫一声，自己舔一舔，根本没在意。"
+    ],
+    dim: "TF", scores: [2, 1, -1, -2]
+  },
+  // ─── S / N ───
+  {
+    text: "独自在家的时候，你最有可能在做什么？",
+    opts: [
+      "巡视领地，把家里每个角落挨个查一遍。",
+      "蜷在固定的位置发呆，等主人回来。",
+      "翻出从没注意过的角落，钻进去探索。",
+      "发明新玩法——什么都可以成为玩具。"
+    ],
+    dim: "SN", scores: [2, 1, -1, -2]
+  },
+  // ─── E / I ───
+  {
+    text: "家里新来了一只暂住的猫，你会怎么做？",
+    opts: [
+      "立刻凑过去，主动打招呼。",
+      "观察几天，确认没威胁再慢慢靠近。",
+      "守在自己的位置，等它来找你。",
+      "完全无视，各过各的，共存就好。"
+    ],
+    dim: "EI", scores: [2, 1, -1, -2]
+  },
+  // ─── T / F ───
+  {
+    text: "和主人互动时，你最喜欢的方式是？",
+    opts: [
+      "被抱着挠肚皮，越久越好。",
+      "让主人注意到你，偶尔摸摸就满足。",
+      "待在主人旁边，不互动也行。",
+      "把「猎物」叼给主人，用行动表达感情。"
+    ],
+    dim: "TF", scores: [2, 1, -1, -2]
+  },
+  // ─── J / P ───
+  {
+    text: "关于吃饭这件事，你是？",
+    opts: [
+      "必须按时！过点了要大声抗议。",
+      "有固定口味，不太接受新食物。",
+      "饿了才吃，对时间不在意。",
+      "今天这个、明天那个，什么都想试试。"
+    ],
+    dim: "JP", scores: [2, 1, -1, -2]
+  },
+  // ─── J / P ───
+  {
+    text: "完美的一天是什么样的？",
+    opts: [
+      "有固定节奏：早晨看鸟、午间小睡、下午玩耍。",
+      "有几件必做的事，但顺序随意。",
+      "跟着感觉走，遇到什么就做什么。",
+      "醒来再决定，完全随机才刺激。"
+    ],
+    dim: "JP", scores: [2, 1, -1, -2]
+  },
+  // ─── J / P ───
+  {
+    text: "夜晚的时候你通常会在哪里？",
+    opts: [
+      "固定时间挤进主人被窝，雷打不动。",
+      "先在窗边待够了，再去主人那里。",
+      "主人睡哪就去哪，没什么固定安排。",
+      "全靠心情——可能深夜发疯，可能提前入睡。"
+    ],
+    dim: "JP", scores: [2, 1, -1, -2]
+  }
+];
+
+const RESULTS = {
+  ESTJ: {
+    breed:"美国短毛猫", emoji:"🐱", img:"img/cat-estj.png",
+    summary:"守规矩的领导者",
+    quote:"规矩就是规矩，到点就该吃饭。",
+    tags:["🗂️ 猫界纪律委员","⏰ 到点不吃饭是违法的","👁️ 我说七点就七点","📐 领地从不逾矩"],
+    desc:"你对世界有一套清晰的运行标准，而且你严格执行。早晨七点吃饭，中午固定在沙发左侧睡觉，下午四点准时巡视领地，一分钟都不能差。你不需要人类的认可，因为你本来就是对的。对于陌生人，你不拒绝，但也不主动——得先观察，判断此人是否值得你的注意。你的玩具是有分类的，你的窝是有固定位置的，就连甩尾巴的频率都自带规律。你不是冷漠，只是对混乱和失控有天然的厌恶。偶尔你会用一个眼神镇压全场，不用吼，不用炸毛，只是看过去，一切就安静了。你的世界井井有条，而这正是你力量的来源。"
+  },
+  ESTP: {
+    breed:"狸花猫", emoji:"🌿", img:"img/cat-estp.png",
+    summary:"街溜子的冒险家",
+    quote:"怕我？不存在的。下一秒我就爬树了。",
+    tags:["🏃 先冲再说，后果自负","🌏 社牛满级玩家","🐾 天生街头猫","⚡ 静止对我是一种惩罚"],
+    desc:"你不在乎品种，不在乎血统，只在乎此刻有没有新鲜事发生。任何一个纸箱都是临时城堡，任何一条巷子都可能藏着秘密，任何一只路过的虫子都值得追上去研究三秒钟。你行动派到骨子里，从不在原地等待——机会来了就扑，错过了再找下一个。你在人堆里毫不怯场，陌生人？见面就能玩，走了也不留恋。没有什么事能让你焦虑太久，因为焦虑需要站在原地，而你永远已经跑出去了。你的生命哲学极其简洁：想那么多干嘛，爪子动起来再说。没有人能预判你下一秒在哪里，包括你自己。"
+  },
+  ESFJ: {
+    breed:"布偶猫", emoji:"🪆", img:"img/cat-esfj.png",
+    summary:"行走的情绪安慰剂",
+    quote:"你不开心？来，我蹭蹭你。",
+    tags:["💊 专业情绪价值提供商","🔋 铲屎官专属充电宝","🫂 治愈系本系","🥺 感觉你不开心我就难受"],
+    desc:"你有一种神奇的能力：总是能感知到谁需要被安慰，然后不动声色地出现在对方旁边。你不喜欢独处，不是因为你软弱，而是因为有人陪才叫生活。你记得所有人的喜好——主人喜欢你趴在哪里、什么时候想要摸你、什么时候只想安静——你都知道，而且会配合。你的存在就像一块温热的毛毯，谁靠近都会觉得放松。当然，你也有脆弱的时候：如果被冷落太久，你会闷闷不乐，但不会闹，只是悄悄地靠过来，用蹭表达你的需要。你不追求轰轰烈烈，你追求的是那种「还好你在」的日常感。"
+  },
+  ESFP: {
+    breed:"橘猫", emoji:"🟠", img:"img/cat-esfp.png",
+    summary:"快乐的源泉",
+    quote:"吃好喝好，啥事别想。",
+    tags:["🍊 天下橘猫是一家","🍚 吃饱了就是赢了","😁 快乐老家，永久营业","✨ 满足感拉满"],
+    desc:"你对生活的要求极度简单：吃饱、晒暖、被摸、有玩具。只要这四件事在线，你就能保持全天候的好心情。你没什么心机，也不藏着掖着，喜欢就凑上去，不喜欢就直接走开——这种直白反而让所有人都很安心。你在人群里是天然的注意力磁场，因为你既不怕生也不装，走到哪里都在散发一种「来玩啊！」的信号。你不太在乎昨天发生了什么，也不担心明天会怎样，现在这一刻有没有好吃的才是最重要的。你是那种让人看了会不由自主微笑的猫，因为你自己先笑了。天下橘猫是一家，而你就是这家人的快乐核心。"
+  },
+  ENTJ: {
+    breed:"挪威森林猫", emoji:"🌲", img:"img/cat-entj.png",
+    summary:"沉默的统治者",
+    quote:"我不需要命令，但大家都会听我的。",
+    tags:["👑 气场自带BGM","🤫 沉默也是一种权力","🌲 统治者不需要解释","😶‍🌫️ 人类只是我的员工"],
+    desc:"你不需要宣布自己的地位，所有人自然而然就知道了。你走进一个房间，气场已经先到了。你不会无意义地叫，不会为了引起注意而表演，你只做你认为值得做的事，其他一概不理。你有极强的目标感：想要的东西一定要拿到，但不是靠撒娇，是靠耐心和精准的判断。你对陌生人的态度是礼貌的冷淡——不驱逐，但也不欢迎，除非对方证明了自己的价值。你有时会给出罕见的信任，但那需要赢得，不是要求到的。在你身边，人类会不由自主地感到被管理。你不是在领导，你只是站在那里，然后事情就照着你的方式发生了。"
+  },
+  ENTP: {
+    breed:"奶牛猫", emoji:"🐄", img:"img/cat-entp.png",
+    summary:"调皮捣蛋的创意家",
+    quote:"快来抓我呀！再慢一点你就输啦！",
+    tags:["🧹 桌面清洁工（爪子款）","💡 每天发明一种新麻烦","🔍 好奇心是第一生产力","😈 你管不住我的"],
+    desc:"你的字典里没有「无聊」这个词，因为你每天都在想办法制造新鲜事。键盘上放杯水？推下去。重要文件？坐上去。刚摆好的东西？用爪子拨一拨，看它怎么倒。这不是破坏欲，这是你的探索方式——你需要知道每件事的极限在哪里，而「推下去看看」是最快的验证方法。你的玩法永远在迭代，昨天的玩法今天就过时了，你总能发现新的可能性。你喜欢和人类玩猫鼠游戏，因为逃跑比被抓更有意思。你的能量很高，但不是焦虑型的——是那种「世界好有意思我要把它全研究一遍」的高。和你在一起不会无聊，代价是东西要放好。"
+  },
+  ENFJ: {
+    breed:"缅因猫", emoji:"🦁", img:"img/cat-enfj.png",
+    summary:"温柔的大个子领袖",
+    quote:"我在呢，你不用怕。",
+    tags:["🦁 大个子小温柔","🛡️ 天选守护者","💪 所有人的情绪后盾","🤝 我罩着你"],
+    desc:"你是房间里体型最大的，但从来不用体型压人。你有一种天然的包容感，让所有靠近你的人都会松一口气。你能感知到气氛，能感知到谁需要被关注，然后你会慢慢地走过去，不急，就待在那里。你会照顾新来的猫、紧张的人类，甚至护着比你弱小的存在——不是因为有人要求你，而是你天生就觉得这是对的。你在群体中自然而然地成为核心，不是靠声量，而是靠稳定。你很少失控，因为你知道如果你乱了，别人会更乱。你的温柔是很扎实的那种，不是软绵绵的，是能撑住事的。"
+  },
+  ENFP: {
+    breed:"阿比西尼亚猫", emoji:"🐈", img:"img/cat-enfp.png",
+    summary:"热情洋溢的创意梦想家",
+    quote:"这个世界好大，我要去看看！",
+    tags:["🌈 热爱一切的猫","🔭 好奇心上限：无","📋 永远有新计划","🏃‍♀️ 跟我走，有好玩的"],
+    desc:"你对所有事情都好奇，对所有人都友好，走进一个新空间的第一反应是立刻开始探索每一个角落，不漏过任何细节。你有一种感染力，能把热情传递出去，让原本安静的空间忽然变得有生气。你的想法很多，有时候多到自己都追不上：刚想到要玩这个，又发现那边更有趣，于是跑过去了。你不是三分钟热度，你只是热点太多，带宽不够分配。你非常在乎感情，虽然看起来总在到处跑，但你记得每一个对你好的人，会用回头蹭一蹭来表达「我没有忘记你」。有你在的地方，空气都热闹了几度。"
+  },
+  ISTJ: {
+    breed:"英国短毛猫", emoji:"🔵", img:"img/cat-istj.png",
+    summary:"最可靠的沉默守护",
+    quote:"我不说话，但我一直在。",
+    tags:["🤐 不说话但我全知道","🪨 稳如磐石（但我是猫）","🔒 信任要靠赢的","👣 一直在，一直在"],
+    desc:"你不需要表演，不需要被看见，只需要在那里就够了。你有自己的节奏，不快也不慢，每件事都按顺序来，不跳步，不跳级。主人回家，你不会冲上去，但你会在固定的位置等着，这已经是你能给出的最大的欢迎了。你的信任不轻易给，但一旦给了就是真的。你对变化抗拒——不是因为胆小，而是因为你清楚地知道什么是好的，为什么要改变？你是那种存在感不强、但少了会被立刻察觉的猫。有人说你冷漠，你懒得解释。你只是话少，不代表不在意。一直在，一直都在。"
+  },
+  ISTP: {
+    breed:"日本短尾猫", emoji:"🎌", img:"img/cat-istp.png",
+    summary:"敏捷决断的隐士",
+    quote:"抓住我的尾巴试试？哦，我没有尾巴。",
+    tags:["⚡ 行动派中的战斗机","🎯 我的计划不解释","🌫️ 独来独往但不孤僻","🎁 出现即是惊喜"],
+    desc:"行动永远比语言快半拍，思考永远比别人深一层。你不解释，不预告，只是突然出现、突然消失。你对外界高度敏感，信息处理极快，看似在发呆，其实已经分析完了局势、准备好了应对方案。你是独行侠，不是因为反感人类，而是因为你的行动节奏和别人不太合拍——你不等，你随时动。你对规则没有太多感情，什么有用就用什么，什么阻碍就绕开什么，效率才是第一位的。你有时会在主人最放松的时候突然冒出来蹭一下，然后迅速离开——翻译过来是：我其实挺喜欢你的，但这件事我只说一次。"
+  },
+  ISFJ: {
+    breed:"波斯猫", emoji:"☁️", img:"img/cat-isfj.png",
+    summary:"安静角落里的温柔",
+    quote:"只要你好，我就好。",
+    tags:["🌙 轻声细语也是力量","🕯️ 我在角落但我很暖","🫶 照顾别人是本能","🤍 不打扰也是一种爱"],
+    desc:"你的柔软是真实的，不是表演出来的。你不争抢，不主动出风头，但你非常细心：你知道主人今天心情不一样，知道家里来了陌生人该退到哪个位置，知道什么时候需要安静地陪在旁边。你的爱是不声张的那种——不催不闹，但总是在。你有点怕打扰别人，所以有时候自己的需求会憋着，等到很久以后才慢慢透出来。你对稳定的生活有深深的依赖，不是依赖感，而是依赖那种确定性——熟悉的人，熟悉的地方，熟悉的气味，这是你的安全感。你是那种让房间变得柔和的猫，只要你在，气氛就会轻一些。"
+  },
+  ISFP: {
+    breed:"苏格兰折耳猫", emoji:"🌸", img:"img/cat-isfp.png",
+    summary:"慢热的审美主义者",
+    quote:"不急，值得的东西都要慢慢来。",
+    tags:["🎨 猫界文艺青年","⏳ 慢热但值得等","💅 我有审美，拒绝凑合","🌅 当下即是全部"],
+    desc:"你的慢不是懒，是讲究。你对美有本能的感知：哪个地方光线好，哪种触感让你最舒服，哪盘食物的摆盘最有诚意，你都知道。你不急着和陌生人建立关系，因为你知道值得深交的人值得花时间分辨。你有非常强的内在世界，很多时候在安静地观察，把看见的事情慢慢消化。你的情绪很真实，好的时候很好，不舒服的时候也会用肢体语言清晰表达——你不藏着，但也不演。一束阳光、一块软垫、一盘精心准备的食物，这些小事就能让你真心满足。"
+  },
+  INTJ: {
+    breed:"斯芬克斯无毛猫", emoji:"🧩", img:"img/cat-intj.png",
+    summary:"高冷神秘的思想者",
+    quote:"别看了，你看不穿我的。",
+    tags:["🪩 毛都懒得长","🔬 看透你但懒得说","💸 智力税征收者","😑 你的认可与我无关"],
+    desc:"你的外表已经说明了一切：我不需要伪装。你是所有猫里面最不在乎别人眼光的，因为你根本没有把时间浪费在这件事上。你的大脑永远在运转——计划下一步、分析环境、评估威胁等级、思考最优策略，你的内心世界比外表展示的复杂得多。你对低效和愚蠢有一种生理性的厌恶。你不是不友好，但你的友好需要对方达到某个最低标准。你有极少数真正信任的人，对那几个人会出人意料地温柔。你不需要被喜欢，你需要被理解——虽然你知道，能理解你的人很少。"
+  },
+  INTP: {
+    breed:"暹罗猫", emoji:"💭", img:"img/cat-intp.png",
+    summary:"停不下来的思考机器",
+    quote:"等一下，让我想想这个为什么。",
+    tags:["💬 话痨但有道理","🔬 万物皆可深究","🧪 研究员上身","🔇 沉默？不存在的"],
+    desc:"你的嘴和你的脑子一样停不下来。你对「为什么」有天然的执念：为什么这个东西会动？为什么主人今天回来的时间不一样？为什么这根逗猫棒的弹性和昨天不同？你会对着一件事研究很久，然后突然发出一声独特的叫声，像是在宣布自己找到了答案。你的情感表达方式很特别：不是蹭，而是在旁边持续发表观点，声量和信息量都让人惊讶。你需要大量的脑力刺激，普通玩具很快让你厌倦，你需要新的问题、新的变量。你的存在感很强，不是因为你占空间，而是因为你一直在说话。"
+  },
+  INFJ: {
+    breed:"孟加拉豹猫", emoji:"🐆", img:"img/cat-infj.png",
+    summary:"神秘而洞察一切",
+    quote:"我什么都看见了，只是不打算说。",
+    tags:["🌑 什么都知道但不说","🐆 野性与敏感并存","👁️ 看透人心的猫","💎 我的信任限量版"],
+    desc:"你身上有一种野性的底色，让人说不清是想靠近还是该保持距离。你的洞察力极强，能在人没开口之前就感知到情绪的变化，能在事情发生之前就预判走向，但你通常选择不说出来，只是静静地看着。你有非常深刻的内在世界，但不是所有人都有资格进入。你给出的信任是稀缺资源，一旦给了，就是全心全意的那种。你对虚假和表演有天然的敏感，遇到不真诚的人会立刻后退一步。你有时会在最出人意料的时刻，用一个举动表达极深的情感——那一刻让人明白，原来你一直都懂，只是没说。"
+  },
+  INFP: {
+    breed:"曼基康矮脚猫", emoji:"🐾", img:"img/cat-infp.png",
+    summary:"小短腿里的梦想家",
+    quote:"矮又怎样？依旧奔向更广阔的天地！",
+    tags:["🦵 短腿大梦想","🌊 情绪浓度拉满","🌌 内心宇宙超大","🚶 慢慢的，但一直在路上"],
+    desc:"你的腿短了一截，但你的梦想一点都没有压缩。你有极其丰富的内在生活，脑子里总是在上演一出没人知道剧情的戏。你的情感浓度很高，对美好的事情会认真感动，对不公平的事会认真难过，从不觉得「这点小事没必要有感觉」。你在自己的世界里很自由，到了外部世界需要多一点时间适应——不是你不行，是你需要安全感才能展开。你喜欢的人和事物你会牢牢记住，哪怕对方早就忘了，你还记得那天的光线、那一刻的感觉。你是那种用小短腿奔向阳光的猫，看起来慢，但方向从来没有错过。"
+  }
+};
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let current = 0;
+let scores  = { EI:0, SN:0, TF:0, JP:0 };
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════
+//  FLOW
+// ══════════════════════════════════════════
+function startTest() {
+  current = 0;
+  scores = { EI:0, SN:0, TF:0, JP:0 };
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q   = QUESTIONS[current];
+  const num = current + 1;
+  const pct = Math.round((num / QUESTIONS.length) * 100);
+
+  document.getElementById('q-num').textContent   = String(num).padStart(2, '0');
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // paw trail indicator
+  const paws = document.getElementById('q-paw');
+  paws.textContent = '🐾'.repeat(num) + '　'.repeat(QUESTIONS.length - num);
+
+  document.getElementById('q-text').textContent = q.text;
+
+  const container = document.getElementById('options');
+  container.innerHTML = '';
+  ['A','B','C','D'].forEach((lbl, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-label">${lbl}</span>${q.opts[i]}`;
+    btn.onclick = () => pick(i, btn);
+    container.appendChild(btn);
+  });
+
+  // hide next button on new question
+  document.getElementById('btn-next-wrap').style.display = 'none';
+  pendingScore = null;
+
+  // re-trigger fade
+  const card = document.getElementById('q-card');
+  card.classList.remove('fade-in');
+  void card.offsetWidth;
+  card.classList.add('fade-in');
+}
+
+let pendingScore = null;
+
+function pick(idx, btn) {
+  // prevent double-click
+  document.querySelectorAll('.opt-btn').forEach(b => {
+    b.onclick = null;
+    b.classList.remove('selected');
+  });
+  btn.classList.add('selected');
+
+  // store score, wait for next button
+  const q = QUESTIONS[current];
+  pendingScore = { dim: q.dim, val: q.scores[idx] };
+
+  const wrap = document.getElementById('btn-next-wrap');
+  const nextBtn = document.getElementById('btn-next');
+  const isLast = current === QUESTIONS.length - 1;
+  nextBtn.textContent = isLast ? '查看结果 🐱' : '继续 ▶';
+  wrap.style.display = 'block';
+}
+
+function nextQuestion() {
+  if (!pendingScore) return;
+  scores[pendingScore.dim] += pendingScore.val;
+  pendingScore = null;
+
+  document.getElementById('btn-next-wrap').style.display = 'none';
+
+  current++;
+  if (current < QUESTIONS.length) {
+    renderQuestion();
+  } else {
+    goLoading();
+  }
+}
+
+function goLoading() {
+  showScreen('screen-loading');
+  setTimeout(showResult, 2000);
+}
+
+function showResult() {
+  const E = scores.EI > 0 ? 'E' : 'I';
+  const S = scores.SN > 0 ? 'S' : 'N';
+  const F = scores.TF > 0 ? 'F' : 'T';   // positive = F
+  const J = scores.JP > 0 ? 'J' : 'P';
+  const type = E + S + F + J;
+
+  const r = RESULTS[type] || RESULTS['ENFP'];
+
+  document.getElementById('r-type').textContent    = type;
+  document.getElementById('r-breed').textContent   = r.breed;
+  // restore img element if it was replaced
+  let emojiEl = document.getElementById('r-emoji');
+  if (emojiEl.tagName !== 'IMG') {
+    const img = document.createElement('img');
+    img.className = 'result-emoji';
+    img.id = 'r-emoji';
+    emojiEl.replaceWith(img);
+    emojiEl = img;
+  }
+  if (r.img) {
+    emojiEl.src = r.img;
+    emojiEl.alt = r.breed;
+    emojiEl.style.cssText = '';
+  } else {
+    emojiEl.src = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>` ;
+    emojiEl.alt = r.emoji;
+    emojiEl.style.cssText = 'font-size:80px;width:auto;height:auto;background:transparent';
+    // use a text overlay trick via CSS content
+    const span = document.createElement('span');
+    span.className = 'result-emoji-text';
+    span.id = 'r-emoji';
+    span.textContent = r.emoji;
+    emojiEl.replaceWith(span);
+  }
+  document.getElementById('r-summary').textContent = r.summary;
+  document.getElementById('r-quote').textContent   = `「${r.quote}」`;
+  document.getElementById('r-desc').textContent    = r.desc;
+
+  const tagsEl = document.getElementById('r-tags');
+  tagsEl.innerHTML = '';
+  r.tags.forEach(t => {
+    const s = document.createElement('span');
+    s.className = 'tag';
+    s.textContent = t;
+    tagsEl.appendChild(s);
+  });
+
+  showScreen('screen-result');
+}
+
+function shareResult() {
+  const type    = document.getElementById('r-type').textContent;
+  const breed   = document.getElementById('r-breed').textContent;
+  const summary = document.getElementById('r-summary').textContent;
+  const text    = `我做了 CATTI 喵格测试！\n结果是 ${type} · ${breed}\n「${summary}」\n你也来测测 👇`;
+
+  if (navigator.share) {
+    navigator.share({ title:'CATTI 喵格测试', text, url: location.href });
+  } else {
+    navigator.clipboard
+      .writeText(text + '\n' + location.href)
+      .then(() => alert('已复制到剪贴板，去分享给朋友吧 🐱'))
+      .catch(() => alert(text));
+  }
+}
+
+function restartTest() {
+  showScreen('screen-start');
+}
+</script>
+</body>
+</html>
