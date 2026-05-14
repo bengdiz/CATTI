@@ -982,9 +982,8 @@ function renderQuestion() {
 let pendingScore = null;
 
 function pick(scoreVal, btn) {
-  // prevent double-click
+  // 重置所有选项样式，保留 onclick 以允许改选
   document.querySelectorAll('.opt-btn').forEach(b => {
-    b.onclick = null;
     b.classList.remove('selected');
   });
   btn.classList.add('selected');
