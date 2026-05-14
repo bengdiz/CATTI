@@ -418,14 +418,9 @@
       <div class="start-title">CATTI</div>
       <div style="font-family:'DotGothic16',sans-serif;font-size:13px;color:var(--muted);text-align:center;margin-top:6px;margin-bottom:2px;">你是哪种猫？</div>
       <img src="img-hero.png" alt="CATTI 喵格测试" class="hero-cat" />
-      <div class="start-sub">
-        12道题，测出你的喵星人格原型<br>
-        对应 16 种猫咪品种结果
-      </div>
+      <div class="start-sub">喵喵喵</div>
       <div class="info-box">
-        🐾 &nbsp;共 12 道题，每题 4 个选项<br>
-        🎯 &nbsp;结果对应 16 种猫咪品种<br>
-        ⏱ &nbsp;大约需要 2–3 分钟完成
+        <img src="img-icon-time.png" alt="" style="width:28px;height:28px;image-rendering:pixelated;vertical-align:middle;margin-right:8px;">共 12 道题，大约需要 2–3 分钟完成
       </div>
       <button class="btn btn-primary" onclick="startTest()">▶ &nbsp;开始测试</button>
     </div>
@@ -467,7 +462,7 @@
     <div class="card fade-in">
       <div class="result-top">
         <div class="result-badge">
-          <div class="result-type" id="r-type"></div>
+          <div class="result-type" id="r-type" style="display:none"></div>
           <div class="result-breed" id="r-breed"></div>
         </div>
         <img class="result-emoji" id="r-emoji" src="" alt="" />
@@ -478,8 +473,8 @@
       <hr class="divider" />
       <div class="result-desc" id="r-desc"></div>
       <div class="result-actions">
-        <button class="btn btn-primary" onclick="shareResult()">🔗 &nbsp;分享给朋友</button>
-        <button class="btn btn-outline" onclick="restartTest()">↺ &nbsp;重新测试</button>
+        <button class="btn btn-primary" onclick="shareResult()"><img src="img-icon-share.png" alt="" style="width:18px;height:18px;image-rendering:pixelated;vertical-align:middle;margin-right:6px;">分享</button>
+        <button class="btn btn-outline" onclick="restartTest()"><img src="img-icon-retry.png" alt="" style="width:18px;height:18px;image-rendering:pixelated;vertical-align:middle;margin-right:6px;">重新测试</button>
       </div>
     </div>
   </div>
